@@ -1,0 +1,141 @@
+run:
+  modules-download-mode: readonly # Do not update dependencies.
+  concurrency: 4
+  timeout: 3m
+linters-settings:
+  varnamelen:
+    min-name-length: 2
+linters:
+  disable-all: true
+  enable:
+    # Default linters
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    # Additional linters
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - containedctx
+    - contextcheck
+    - cyclop
+    - decorder
+    # - depguard # ? is not allowed from list 'Main' - maybe bug. Check later
+    - dogsled
+    - dupl
+    - dupword
+    - durationcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - execinquery
+    - exhaustive
+    # - exhaustruct
+    - exportloopref
+    - forbidigo
+    - forcetypeassert
+    - funlen
+    - gci
+    - ginkgolinter
+    - gocheckcompilerdirectives
+    - gochecknoglobals
+    - gochecknoinits
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    - godox
+    - goerr113
+    - gofmt
+    - gofumpt
+    - goheader
+    - goimports
+    - gomnd
+    - gomoddirectives
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - grouper
+    - importas
+    - interfacebloat
+    # - ireturn # Does not support generics, see https://github.com/butuzov/ireturn/issues/39.
+    - lll
+    - loggercheck
+    - maintidx
+    - makezero
+    - misspell
+    - musttag
+    - nakedret
+    - nestif
+    - nilerr
+    - nilnil
+    - nlreturn
+    - noctx
+    # - nolintlint # Let's keed nolintlint if we decide to add it.
+    # - nonamedreturns # This linter does not make any sense.
+    - nosprintfhostport
+    - paralleltest
+    - prealloc
+    - predeclared
+    - promlinter
+    - reassign
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - stylecheck
+    - tagliatelle
+    - tenv
+    - testableexamples
+    - testpackage
+    - thelper
+    - tparallel
+    - unconvert
+    - unparam
+    - usestdlibvars
+    - varnamelen
+    - wastedassign
+    - whitespace
+    - wrapcheck
+    - wsl
+    - zerologlint
+    - gosmopolitan
+    - mirror
+    - tagalign
+    - testifylint
+    - sloglint
+    - protogetter
+    - perfsprint
+    - gochecksumtype
+issues:
+    exclude-rules:
+      - path: _test\.go
+        linters:
+          - dupl
+          - funlen
+          - dupword
+      - path: doc\.go
+        linters:
+          - lll
+      - path: constraints\/constraints_test\.go
+        linters:
+          - gocritic
+          - wsl
+          - gochecknoglobals
+          - varnamelen
+          - gosec
+          - cyclop
+          - unconvert
+          - paralleltest
+          - tparallel
+          - unused
+
+# golangci.com configuration
+# https://github.com/golangci/golangci/wiki/Configuration
+service:
+  golangci-lint-version: 1.55.x # use the fixed version to not introduce new linters unexpectedly
