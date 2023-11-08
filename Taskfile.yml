@@ -1,12 +1,24 @@
 version: '3'
 
 tasks:
+  bench:
+    desc: Run benchmarks with benchtime 1 million times
+    cmds:
+      - go test -benchmem -benchtime=1000000000x -bench .
   test:
     desc: Run unit tests
     cmds:
       - go test -v ./...
     env:
       GOFLAGS: -count=1
+      CGO_ENABLED: 0
+  test-race:
+    desc: Run unit tests with -race flag
+    cmds:
+      - go test -v -race ./...
+    env:
+      GOFLAGS: -count=1
+      CGO_ENABLED: 1
   lint:
     desc: Run linter
     cmds:

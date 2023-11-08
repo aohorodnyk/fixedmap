@@ -1,9 +1,8 @@
 package fixedmap
 
 import (
+	"hash/maphash"
 	"unsafe"
-
-	"github.com/cespare/xxhash/v2"
 )
 
 // KeyType is a type that can be used as a key in maps.
@@ -14,25 +13,30 @@ type KeyType interface {
 // KeyFlatByte is a type that can be used as a key in maps.
 // It can be converted to a byte slice with unsafe.Slice with the same code.
 type KeyFlatByte interface {
-	~int8 | ~uint8 | ~int16 | ~uint16 | ~int32 | ~uint32 | ~int64 | ~uint64 |
+	~int8 | ~int16 | ~int32 | ~int64 | ~uint8 | ~uint16 | ~uint32 | ~uint64 |
 		~int | ~uint | ~float32 | ~float64 | ~complex64 | ~complex128
 }
 
 // KeyHasher is a function type that is used to hash keys.
 type KeyHasher[K KeyType] func(key K) uint64
 
-// HashString is a hash function for string type.
+// maphash uses hash/maphash algorithm to calculate seed.
+// maphash ~23% faster than xxhash and ~35% faster than crc32.
+
+//nolint:gochecknoglobals // This seed will be used for getting hash in FixedMap.
+var mapHashSeed = maphash.MakeSeed()
+
+// HashString calculates hash based on string input.
 func HashString(key string) uint64 {
-	return xxhash.Sum64(unsafe.Slice(unsafe.StringData(key), len(key)))
+	return maphash.String(mapHashSeed, key)
 }
 
-// HashFlatByte is a hash function for KeyNumbers types.
-// It converts the key to a byte slice with unsafe.Slice.
-func HashFlatByte[K KeyFlatByte](key K) uint64 {
-	return xxhash.Sum64(unsafe.Slice((*byte)(unsafe.Pointer(&key)), unsafe.Sizeof(key)))
-}
-
-// HashBytes is a hash function for byte slice type.
+// HashBytes calculates hash based on slice of bytes input.
 func HashBytes(key []byte) uint64 {
-	return xxhash.Sum64(key)
+	return maphash.Bytes(mapHashSeed, key)
+}
+
+// HashFlatByte calculates hash based on flat types input.
+func HashFlatByte[K KeyFlatByte](key K) uint64 {
+	return maphash.Bytes(mapHashSeed, unsafe.Slice((*byte)(unsafe.Pointer(&key)), unsafe.Sizeof(key)))
 }

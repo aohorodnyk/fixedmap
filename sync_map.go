@@ -5,15 +5,15 @@ import (
 )
 
 func NewSyncMapString[V any](capacity int) *SyncMap[string, V] {
-	return NewSyncMap[string, V](capacity, HashString, KeyCompareComparable[string], IndexUint64)
+	return NewSyncMap[string, V](capacity, HashString, KeyCompareComparable[string], IndexFactory(capacity))
 }
 
 func NewSyncMapFlatByte[K KeyFlatByte, V any](capacity int) *SyncMap[K, V] {
-	return NewSyncMap[K, V](capacity, HashFlatByte[K], KeyCompareComparable[K], IndexUint64)
+	return NewSyncMap[K, V](capacity, HashFlatByte[K], KeyCompareComparable[K], IndexFactory(capacity))
 }
 
 func NewSyncMapBytes[V any](capacity int) *SyncMap[[]byte, V] {
-	return NewSyncMap[[]byte, V](capacity, HashBytes, KeyCompareBytes, IndexUint64)
+	return NewSyncMap[[]byte, V](capacity, HashBytes, KeyCompareBytes, IndexFactory(capacity))
 }
 
 func NewSyncMap[K KeyType, V any](capacity int,
@@ -238,5 +238,5 @@ func (m *SyncMap[K, V]) insertNodeFront(index int, head *syncNode[K, V], key K, 
 
 // index calculates index in table by given key.
 func (m *SyncMap[K, V]) index(key K) int {
-	return m.indexCalculator(m.keyHasher(key), len(m.table))
+	return m.indexCalculator(m.keyHasher(key))
 }

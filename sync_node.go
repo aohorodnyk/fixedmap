@@ -4,6 +4,7 @@ import (
 	"sync/atomic"
 )
 
+// newSyncNode function is a helper to create a new syncNode with value converted by newSyncNodeValue function.
 func newSyncNode[K KeyType, V any](key K, value V) *syncNode[K, V] {
 	newNode := &syncNode[K, V]{
 		key: key,
@@ -14,6 +15,7 @@ func newSyncNode[K KeyType, V any](key K, value V) *syncNode[K, V] {
 	return newNode
 }
 
+// newSyncNodeValue function is a helper to create a new syncNodeValue.
 func newSyncNodeValue[V any](value V, deleted bool) *syncNodeValue[V] {
 	return &syncNodeValue[V]{
 		value:   value,
