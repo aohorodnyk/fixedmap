@@ -4,7 +4,7 @@ import (
 	"sync/atomic"
 )
 
-func NewSyncMapString[K string, V any](cap int) *SyncMap[string, V] {
+func NewSyncMapString[V any](cap int) *SyncMap[string, V] {
 	return NewSyncMap[string, V](cap, HashString, KeyCompareComparable[string], IndexUint64)
 }
 
