@@ -12,5 +12,5 @@ func KeyCompareComparable[K comparable](left, right K) bool {
 
 // KeyCompareBytes is a compare function for comparable type.
 func KeyCompareBytes(left, right []byte) bool {
-	return bytes.Compare(left, right) == 0
+	return bytes.Equal(left, right)
 }

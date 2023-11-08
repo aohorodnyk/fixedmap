@@ -1,6 +1,6 @@
 package fixedmap
 
-type IndexCalculator func(hash uint64, len int) int
+type IndexCalculator func(hash uint64, length int) int
 
 // IndexUint64 is an index calculator that assumes that we use checksum calculator x64.
 func IndexUint64(sum uint64, length int) int {

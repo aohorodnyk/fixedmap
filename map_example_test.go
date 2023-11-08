@@ -2,6 +2,7 @@ package fixedmap_test
 
 import (
 	"fmt"
+
 	"github.com/aohorodnyk/fixedmap"
 )
 

@@ -4,24 +4,25 @@ import (
 	"sync/atomic"
 )
 
-func NewSyncMapString[V any](cap int) *SyncMap[string, V] {
-	return NewSyncMap[string, V](cap, HashString, KeyCompareComparable[string], IndexUint64)
+func NewSyncMapString[V any](capacity int) *SyncMap[string, V] {
+	return NewSyncMap[string, V](capacity, HashString, KeyCompareComparable[string], IndexUint64)
 }
 
-func NewSyncMapFlatByte[K KeyFlatByte, V any](cap int) *SyncMap[K, V] {
-	return NewSyncMap[K, V](cap, HashFlatByte[K], KeyCompareComparable[K], IndexUint64)
+func NewSyncMapFlatByte[K KeyFlatByte, V any](capacity int) *SyncMap[K, V] {
+	return NewSyncMap[K, V](capacity, HashFlatByte[K], KeyCompareComparable[K], IndexUint64)
 }
 
-func NewSyncMapBytes[V any](cap int) *SyncMap[[]byte, V] {
-	return NewSyncMap[[]byte, V](cap, HashBytes, KeyCompareBytes, IndexUint64)
+func NewSyncMapBytes[V any](capacity int) *SyncMap[[]byte, V] {
+	return NewSyncMap[[]byte, V](capacity, HashBytes, KeyCompareBytes, IndexUint64)
 }
 
-func NewSyncMap[K KeyType, V any](cap int,
+func NewSyncMap[K KeyType, V any](capacity int,
 	keyHasher KeyHasher[K],
 	keyComparator KeyComparator[K],
-	indexCalculator IndexCalculator) *SyncMap[K, V] {
+	indexCalculator IndexCalculator,
+) *SyncMap[K, V] {
 	return &SyncMap[K, V]{
-		table:           make([]atomic.Pointer[syncNode[K, V]], cap),
+		table:           make([]atomic.Pointer[syncNode[K, V]], capacity),
 		keyHasher:       keyHasher,
 		keyComparator:   keyComparator,
 		indexCalculator: indexCalculator,
@@ -131,9 +132,6 @@ func (m *SyncMap[K, V]) Set(key K, value V) (old V, ok bool) {
 		}
 
 		// Old value is not deleted. Let's try to set new value.
-		// Create new node value and use CAS to set it as a new value.
-		// If CAS fails, it means that someone else already changed the value.
-		// We need to try again.
 		nodeValue := newSyncNodeValue(value, false)
 		added = current.value.CompareAndSwap(oldNodeValueRef, nodeValue)
 		old = oldNodeValueRef.value
@@ -160,11 +158,12 @@ func (m *SyncMap[K, V]) Delete(key K) (old V, ok bool) {
 
 	// Try to delete node until we succeed.
 	for !deleted {
+		var prev *syncNode[K, V]
+
 		old = valueDefault
 
 		head := m.table[index].Load()
 		current := head
-		var prev *syncNode[K, V]
 
 		// Find the first node with the same key.
 		for current != nil && !m.keyComparator(current.key, key) {
@@ -186,11 +185,8 @@ func (m *SyncMap[K, V]) Delete(key K) (old V, ok bool) {
 
 		// Create new node value and use CAS to set it as a new value.
 		// If CAS fails, it means that someone else already changed the value.
-		// We need to try again.
 		nodeValue := newSyncNodeValue(oldNodeValueRef.value, true)
 		if !current.value.CompareAndSwap(oldNodeValueRef, nodeValue) {
-			// If we could not set deleted flag, it means that someone else changed the value.
-			// We need to start over.
 			continue
 		}
 
@@ -204,12 +200,9 @@ func (m *SyncMap[K, V]) Delete(key K) (old V, ok bool) {
 			continue
 		}
 
-		// If our current node is not head, we need to set next node of the
-		// previous node to the next node of the current node.
 		deleted = prev.next.CompareAndSwap(current, current.Next())
 	}
 
-	// If we deleted the node, we need to decrease length of the map.
 	m.length.Add(^uint64(0))
 
 	return old, true

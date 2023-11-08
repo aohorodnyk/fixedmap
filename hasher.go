@@ -1,8 +1,9 @@
 package fixedmap
 
 import (
-	"github.com/cespare/xxhash/v2"
 	"unsafe"
+
+	"github.com/cespare/xxhash/v2"
 )
 
 // KeyType is a type that can be used as a key in maps.

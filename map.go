@@ -2,28 +2,29 @@ package fixedmap
 
 // NewMapString creates a new map with string keys.
 // The map is backed by a hash table with the given capacity.
-func NewMapString[V any](cap int) *Map[string, V] {
-	return NewMap[string, V](cap, HashString, KeyCompareComparable[string], IndexUint64)
+func NewMapString[V any](capacity int) *Map[string, V] {
+	return NewMap[string, V](capacity, HashString, KeyCompareComparable[string], IndexUint64)
 }
 
 // NewMapFlatByte creates a new map with keys that are generic type from KeyFlatByte.
 // The map is backed by a hash table with the given capacity.
-func NewMapFlatByte[K KeyFlatByte, V any](cap int) *Map[K, V] {
-	return NewMap[K, V](cap, HashFlatByte[K], KeyCompareComparable[K], IndexUint64)
+func NewMapFlatByte[K KeyFlatByte, V any](capacity int) *Map[K, V] {
+	return NewMap[K, V](capacity, HashFlatByte[K], KeyCompareComparable[K], IndexUint64)
 }
 
 // NewMapBytes creates a new map with []byte keys.
 // The map is backed by a hash table with the given capacity.
-func NewMapBytes[V any](cap int) *Map[[]byte, V] {
-	return NewMap[[]byte, V](cap, HashBytes, KeyCompareBytes, IndexUint64)
+func NewMapBytes[V any](capacity int) *Map[[]byte, V] {
+	return NewMap[[]byte, V](capacity, HashBytes, KeyCompareBytes, IndexUint64)
 }
 
 // NewMap creates a new map with all custom parameters.
-func NewMap[K KeyType, V any](cap int, keyHasher KeyHasher[K],
+func NewMap[K KeyType, V any](capacity int, keyHasher KeyHasher[K],
 	keyComparator KeyComparator[K],
-	indexCalculator IndexCalculator) *Map[K, V] {
+	indexCalculator IndexCalculator,
+) *Map[K, V] {
 	return &Map[K, V]{
-		table:           make([]*node[K, V], cap),
+		table:           make([]*node[K, V], capacity),
 		keyHasher:       keyHasher,
 		keyComparator:   keyComparator,
 		indexCalculator: indexCalculator,
@@ -112,9 +113,10 @@ func (m *Map[K, V]) Delete(key K) {
 		return
 	}
 
+	var previous *node[K, V]
+
 	index := m.index(key)
 	current := m.table[index]
-	var previous *node[K, V]
 
 	for current != nil && !m.keyComparator(current.key, key) {
 		previous = current
