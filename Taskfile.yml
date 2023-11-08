@@ -16,3 +16,8 @@ tasks:
     deps:
       - test
       - lint
+  vendor:
+    desc: Update vendor dependencies
+    cmds:
+      - go mod tidy
+      - go mod vendor
