@@ -7,6 +7,14 @@ tasks:
       - go test -v ./...
     env:
       GOFLAGS: -count=1
+      CGO_ENABLED: 0
+  test-race:
+    desc: Run unit tests with -race flag
+    cmds:
+      - go test -v -race ./...
+    env:
+      GOFLAGS: -count=1
+      CGO_ENABLED: 1
   lint:
     desc: Run linter
     cmds:
