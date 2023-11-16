@@ -1,6 +1,10 @@
 version: '3'
 
 tasks:
+  bench:
+    desc: Run benchmarks with benchtime 1 million times
+    cmds:
+      - go test -benchmem -benchtime=1000000000x -bench .
   test:
     desc: Run unit tests
     cmds:

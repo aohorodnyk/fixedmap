@@ -3,23 +3,24 @@ package fixedmap
 // NewMapString creates a new map with string keys.
 // The map is backed by a hash table with the given capacity.
 func NewMapString[V any](capacity int) *Map[string, V] {
-	return NewMap[string, V](capacity, HashString, KeyCompareComparable[string], IndexUint64)
+	return NewMap[string, V](capacity, HashString, KeyCompareComparable[string], IndexFactory(capacity))
 }
 
 // NewMapFlatByte creates a new map with keys that are generic type from KeyFlatByte.
 // The map is backed by a hash table with the given capacity.
 func NewMapFlatByte[K KeyFlatByte, V any](capacity int) *Map[K, V] {
-	return NewMap[K, V](capacity, HashFlatByte[K], KeyCompareComparable[K], IndexUint64)
+	return NewMap[K, V](capacity, HashFlatByte[K], KeyCompareComparable[K], IndexFactory(capacity))
 }
 
 // NewMapBytes creates a new map with []byte keys.
 // The map is backed by a hash table with the given capacity.
 func NewMapBytes[V any](capacity int) *Map[[]byte, V] {
-	return NewMap[[]byte, V](capacity, HashBytes, KeyCompareBytes, IndexUint64)
+	return NewMap[[]byte, V](capacity, HashBytes, KeyCompareBytes, IndexFactory(capacity))
 }
 
 // NewMap creates a new map with all custom parameters.
-func NewMap[K KeyType, V any](capacity int, keyHasher KeyHasher[K],
+func NewMap[K KeyType, V any](capacity int,
+	keyHasher KeyHasher[K],
 	keyComparator KeyComparator[K],
 	indexCalculator IndexCalculator,
 ) *Map[K, V] {
@@ -156,5 +157,5 @@ func (m *Map[K, V]) Range(callback Ranger[K, V]) {
 
 // index calculates index in table by given key.
 func (m *Map[K, V]) index(key K) int {
-	return m.indexCalculator(m.keyHasher(key), len(m.table))
+	return m.indexCalculator(m.keyHasher(key))
 }
